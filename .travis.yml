@@ -10,6 +10,10 @@ android:
     - build-tools-25.0.0
     - android-25
 
+    # Extras
+    - extra-google-m2repository
+    - extra-android-m2repository
+
 # as per http://blog.travis-ci.com/2014-12-17-faster-builds-with-container-based-infrastructure/
 sudo: false
 
