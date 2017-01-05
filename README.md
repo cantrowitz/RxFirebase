@@ -1,5 +1,7 @@
 # RxFirebase: Reactive Extensions for Firebase
 
+[![Build Status](https://travis-ci.org/cantrowitz/RxFirebase.svg?branch=master)](https://travis-ci.org/cantrowitz/RxFirebase)
+
 Firebase specific bindings for [RxJava2](http://github.com/ReactiveX/RxJava).
 
 This module adds the minimum classes to Firebase that make writing reactive components in Android
