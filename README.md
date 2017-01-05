@@ -12,3 +12,10 @@ applications easy and hassle-free. It exposes the FirebaseAuth object.
 
 All communication should be through the following channel:
 - [GitHub Issues][issues]
+
+
+## Bugs and Feedback
+
+For bugs, feature requests, and discussion please use [GitHub Issues][issues].
+
+[issues]: https://github.com/cantrowitz/RxFirebase/issues
