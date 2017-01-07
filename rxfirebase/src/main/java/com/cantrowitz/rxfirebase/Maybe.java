@@ -39,7 +39,7 @@ public class Maybe<T> {
     }
 
     /**
-     * Tests the {@link Maybe<T>} for having a value
+     * Tests the {@link Maybe} for having a value
      *
      * @return true if there is a value, false otherwise
      */
@@ -48,7 +48,7 @@ public class Maybe<T> {
     }
 
     /**
-     * Gets the value from the {@link Maybe<T>}. Always make sure that it {@link #isPresent()} first
+     * Gets the value from the {@link Maybe}. Always make sure that it {@link #isPresent()} first
      *
      * @return the value {@link T}
      */

@@ -13,7 +13,7 @@ import io.reactivex.functions.Function;
 import io.reactivex.functions.Predicate;
 
 /**
- * This is the entry point for all {@link Observable<T>} for {@link FirebaseAuth}
+ * This is the entry point for all {@link Observable} for {@link FirebaseAuth}
  */
 public class RxFirebaseAuth {
 
@@ -70,7 +70,7 @@ public class RxFirebaseAuth {
 
     /**
      * Creates an Observable that only emits when a user has logged out. Only emits an empty
-     * {@link Maybe<FirebaseUser>>}, not much use interacting with this object
+     * {@link Maybe}, not much use interacting with this object
      *
      * @return the {@link Observable}
      */

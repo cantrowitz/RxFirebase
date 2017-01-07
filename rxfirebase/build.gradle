@@ -1,5 +1,12 @@
+plugins {
+    id "com.jfrog.bintray" version "1.7.3"
+}
 apply plugin: 'com.android.library'
 apply plugin: 'jacoco-android'
+
+
+// This is the library version used when deploying the artifact
+version = "0.1.0"
 
 android {
     compileSdkVersion 25
@@ -9,7 +16,7 @@ android {
         minSdkVersion 16
         targetSdkVersion 25
         versionCode 1
-        versionName "1.0"
+        versionName version
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -36,3 +43,51 @@ dependencies {
     compile 'io.reactivex.rxjava2:rxjava:2.0.2'
     compile 'com.google.firebase:firebase-auth:10.0.1'
 }
+
+
+def siteUrl = 'https://github.com/cantrowitz/RxFirebase'      // Homepage URL of the library
+def gitUrl = 'git@github.com:cantrowitz/RxFirebase.git'   // Git repository URL
+group = "com.cantrowitz"                                          // Maven Group ID for the artifact
+
+
+task sourcesJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier = 'sources'
+}
+
+task javadoc(type: Javadoc) {
+    source = android.sourceSets.main.java.srcDirs
+    classpath += project.files(android.getBootClasspath().join(File.pathSeparator))
+}
+
+task javadocJar(type: Jar, dependsOn: javadoc) {
+    classifier = 'javadoc'
+    from javadoc.destinationDir
+}
+
+afterEvaluate {
+    javadoc.classpath += files(android.libraryVariants.collect { variant ->
+        variant.javaCompile.classpath.files
+    })
+}
+
+
+artifacts {
+    archives javadocJar
+    archives sourcesJar
+}
+
+bintray {
+    user = BINTRAY_USER
+    key = BINTRAY_KEY
+    configurations = ['archives']
+    pkg {
+        repo = 'maven'
+        name = 'com.cantrowitz:rxfirbase'
+        licenses = ['Apache-2.0']
+        websiteUrl = siteUrl
+        vcsUrl = gitUrl
+        publish = true
+    }
+}
+
