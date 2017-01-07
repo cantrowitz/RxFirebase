@@ -78,8 +78,8 @@ artifacts {
 }
 
 bintray {
-    user = BINTRAY_USER
-    key = BINTRAY_KEY
+    user = this.hasProperty('BINTRAY_USER') ? BINTRAY_USER : "Not Supported"
+    key = this.hasProperty('BINTRAY_KEY') ? BINTRAY_KEY : "Not Supported"
     configurations = ['archives']
     pkg {
         repo = 'maven'
@@ -87,7 +87,7 @@ bintray {
         licenses = ['Apache-2.0']
         websiteUrl = siteUrl
         vcsUrl = gitUrl
-        publish = true
+        publish = false
     }
 }
 
