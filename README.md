@@ -16,6 +16,19 @@ All communication should be through the following channel:
 - [GitHub Issues][issues]
 
 
+# Binaries
+
+```groovy
+compile 'com.cantrowitz:rxfirebase:0.1.0'
+// Because RxFirebase releases are few and far between, it is recommended you also
+// explicitly depend on RxJava's and Firebase's latest version for bug fixes and new features.
+compile 'io.reactivex.rxjava2:rxjava:2.0.2'
+compile 'com.google.firebase:firebase-auth:10.0.1'
+```
+
+
+
+
 ## Bugs and Feedback
 
 For bugs, feature requests, and discussion please use [GitHub Issues][issues].
