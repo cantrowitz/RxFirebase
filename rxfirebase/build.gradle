@@ -1,12 +1,33 @@
 plugins {
     id "com.jfrog.bintray" version "1.7.3"
+    id "com.github.dcendents.android-maven" version "1.5"
 }
 apply plugin: 'com.android.library'
 apply plugin: 'jacoco-android'
 
 
-// This is the library version used when deploying the artifact
-version = "0.2.0-SNAPSHOT"
+class Artifact{
+    String version
+    String groupId
+    String id
+    String siteUrl
+    String gitUrl
+    String name
+}
+
+def artifact = new Artifact();
+
+artifact.with{
+    version = "0.1.2"
+    groupId = "com.cantrowitz"
+    id = "rxfirebase"
+    siteUrl = 'https://github.com/cantrowitz/RxFirebase'
+    gitUrl = 'git@github.com:cantrowitz/RxFirebase.git'
+    name = "RxFirebase"
+}
+
+group = artifact.groupId
+version = artifact.version
 
 android {
     compileSdkVersion 25
@@ -15,8 +36,8 @@ android {
     defaultConfig {
         minSdkVersion 16
         targetSdkVersion 25
-        versionCode 1
-        versionName version
+        versionCode 2
+        versionName artifact.version
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
@@ -43,12 +64,6 @@ dependencies {
     compile 'io.reactivex.rxjava2:rxjava:2.0.2'
     compile 'com.google.firebase:firebase-auth:10.0.1'
 }
-
-
-def siteUrl = 'https://github.com/cantrowitz/RxFirebase'      // Homepage URL of the library
-def gitUrl = 'git@github.com:cantrowitz/RxFirebase.git'   // Git repository URL
-group = "com.cantrowitz"                                          // Maven Group ID for the artifact
-
 
 task sourcesJar(type: Jar) {
     from android.sourceSets.main.java.srcDirs
@@ -83,11 +98,39 @@ bintray {
     configurations = ['archives']
     pkg {
         repo = 'maven'
-        name = 'com.cantrowitz:rxfirbase'
+        name = artifact.name
+        version {
+            name = artifact.version
+        }
         licenses = ['Apache-2.0']
-        websiteUrl = siteUrl
-        vcsUrl = gitUrl
+        websiteUrl = artifact.siteUrl
+        vcsUrl = artifact.gitUrl
         publish = false
+    }
+}
+
+
+install {
+    repositories.mavenInstaller {
+        pom.project {
+            packaging 'aar'
+
+            name  artifact.name // pom.project.name must be same as bintray.pkg.name
+            version artifact.version
+            url artifact.siteUrl
+            inceptionYear '2016' // HARDCODED
+
+            licenses {
+                license { // HARDCODED
+                    name 'The Apache Software License, Version 2.0'
+                    url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                }
+            }
+            scm {
+                connection artifact.gitUrl
+                url artifact.siteUrl
+            }
+        }
     }
 }
 
