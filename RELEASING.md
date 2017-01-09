@@ -16,4 +16,4 @@ Release Process
  8.  Commit: `git commit -am "Prepare next development version."`
  9.  Push: `git push && git push --tags`
  10. Paste the `CHANGELOG.md` contents for this version into a Release on GitHub along with the
-     Groovy for depending on the new version (https://github.com/cantrowitz/RxFirebase/releases).
+     G/gr   roovy for depending on the new version (https://github.com/cantrowitz/RxFirebase/releases).

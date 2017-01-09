@@ -2,6 +2,9 @@ package com.cantrowitz.rxfirebase;
 
 import android.support.annotation.Nullable;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
@@ -38,9 +41,11 @@ public class RxFirebaseAuthTest {
     @Mock
     FirebaseAuth firebaseAuth;
 
+    @Mock
+    Task<AuthResult> taskAuthResult;
     @InjectMocks
     RxFirebaseAuth target;
-
+    private OnCompleteListener<AuthResult> onCompleteListener;
     private FirebaseAuth.AuthStateListener authStateListener;
 
     @Before
@@ -126,6 +131,53 @@ public class RxFirebaseAuthTest {
 
         observer.assertValues(firebaseUser1);
     }
+
+    @Test
+    public void testSignInAnonymously_andCompletes() throws Exception {
+        when(firebaseAuth.signInAnonymously()).thenReturn(taskAuthResult);
+        when(taskAuthResult.isSuccessful()).thenReturn(true);
+
+        setCompleteListener();
+
+        final TestObserver<Void> testObserver = target.signInAnonymously().test();
+
+        onCompleteListener.onComplete(taskAuthResult);
+        testObserver.assertComplete();
+    }
+
+    private void setCompleteListener() {
+        doAnswer(new Answer<Task<AuthResult>>() {
+            @Override
+            public Task<AuthResult> answer(InvocationOnMock invocation) throws Throwable {
+                onCompleteListener = invocation.getArgument(0);
+                return taskAuthResult;
+            }
+        }).when(taskAuthResult).addOnCompleteListener(any(OnCompleteListener.class));
+    }
+
+    @Test
+    public void testSignInAnonymously_andFails() throws Exception {
+        final Exception exception = new Exception();
+        when(firebaseAuth.signInAnonymously()).thenReturn(taskAuthResult);
+        when(taskAuthResult.isSuccessful()).thenReturn(false);
+        when(taskAuthResult.getException()).thenReturn(exception);
+
+        setCompleteListener();
+
+        final TestObserver<Void> testObserver = target.signInAnonymously().test();
+
+        onCompleteListener.onComplete(taskAuthResult);
+
+        testObserver.assertError(exception);
+    }
+
+    @Test
+    public void testSignout() throws Exception {
+        final TestObserver<Void> testObserver = target.signOut().test();
+        verify(firebaseAuth).signOut();
+        testObserver.onComplete();
+    }
+
 
     private FirebaseAuth createFirebaseAuth(@Nullable FirebaseUser firebaseUser) {
         final FirebaseAuth firebaseAuth = mock(FirebaseAuth.class);

@@ -19,7 +19,7 @@ All communication should be through the following channel:
 # Binaries
 
 ```groovy
-compile 'com.cantrowitz:rxfirebase:0.1.2'
+compile 'com.cantrowitz:rxfirebase:0.1.3'
 // Because RxFirebase releases are few and far between, it is recommended you also
 // explicitly depend on RxJava's and Firebase's latest version for bug fixes and new features.
 compile 'io.reactivex.rxjava2:rxjava:2.0.2'

@@ -2,9 +2,15 @@ package com.cantrowitz.rxfirebase;
 
 import android.support.annotation.NonNull;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
+import io.reactivex.Completable;
+import io.reactivex.CompletableEmitter;
+import io.reactivex.CompletableOnSubscribe;
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -113,5 +119,45 @@ public class RxFirebaseAuth {
                         return maybeFirebaseUser.get();
                     }
                 });
+    }
+
+    /**
+     * Sign in anonymously to the Firebase app
+     *
+     * @return Completeable for signing in
+     */
+    public Completable signInAnonymously() {
+        return Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(final CompletableEmitter e) throws Exception {
+                firebaseAuth
+                        .signInAnonymously()
+                        .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                            @Override
+                            public void onComplete(@NonNull Task<AuthResult> task) {
+                                if (task.isSuccessful()) {
+                                    e.onComplete();
+                                } else {
+                                    e.onError(task.getException());
+                                }
+                            }
+                        });
+            }
+        });
+    }
+
+    /**
+     * Signs out of the current session
+     *
+     * @return Completeable for signing out
+     */
+    public Completable signOut() {
+        return Completable.create(new CompletableOnSubscribe() {
+            @Override
+            public void subscribe(CompletableEmitter e) throws Exception {
+                firebaseAuth.signOut();
+                e.onComplete();
+            }
+        });
     }
 }
