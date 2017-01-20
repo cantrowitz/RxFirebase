@@ -35,7 +35,7 @@ public class RxFirebaseAuth {
      *
      * @return the {@link Observable}
      */
-    public Observable<FirebaseAuth> observeAuthChange() {
+    public Observable<FirebaseAuth> whenAuthStateChanged() {
         return Observable.create(new ObservableOnSubscribe<FirebaseAuth>() {
             @Override
             public void subscribe(final ObservableEmitter<FirebaseAuth> emitter) throws Exception {
@@ -62,16 +62,16 @@ public class RxFirebaseAuth {
      *
      * @return {@link Observable}
      */
-    public Observable<Maybe<FirebaseUser>> observeUserChange() {
-        return observeAuthChange()
-                .distinctUntilChanged()
+    public Observable<Maybe<FirebaseUser>> whenUserChanged() {
+        return whenAuthStateChanged()
                 .map(new Function<FirebaseAuth, Maybe<FirebaseUser>>() {
                     @Override
                     public Maybe<FirebaseUser> apply(FirebaseAuth newFirebaseAuth) throws
                             Exception {
                         return Maybe.fromNullable(newFirebaseAuth.getCurrentUser());
                     }
-                });
+                })
+                .distinctUntilChanged();
     }
 
     /**
@@ -80,8 +80,8 @@ public class RxFirebaseAuth {
      *
      * @return the {@link Observable}
      */
-    public Observable<Maybe<FirebaseUser>> observeUserLoggedOut() {
-        return observeUserChange()
+    public Observable<Maybe<FirebaseUser>> whenUserLoggedOut() {
+        return whenUserChanged()
                 .filter(new Predicate<Maybe<FirebaseUser>>() {
                     @Override
                     public boolean test(Maybe<FirebaseUser> maybeFirebaseUser) throws
@@ -103,8 +103,8 @@ public class RxFirebaseAuth {
      *
      * @return the {@link Observable}
      */
-    public Observable<FirebaseUser> observeUserLoggedIn() {
-        return observeUserChange()
+    public Observable<FirebaseUser> whenUserLoggedIn() {
+        return whenUserChanged()
                 .filter(new Predicate<Maybe<FirebaseUser>>() {
                     @Override
                     public boolean test(Maybe<FirebaseUser> maybeFirebaseUser) throws
@@ -126,7 +126,7 @@ public class RxFirebaseAuth {
      *
      * @return Completeable for signing in
      */
-    public Completable signInAnonymously() {
+    public Completable whenSignedInAnonymously() {
         return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(final CompletableEmitter e) throws Exception {
@@ -151,7 +151,7 @@ public class RxFirebaseAuth {
      *
      * @return Completeable for signing out
      */
-    public Completable signOut() {
+    public Completable whenSignedOut() {
         return Completable.create(new CompletableOnSubscribe() {
             @Override
             public void subscribe(CompletableEmitter e) throws Exception {

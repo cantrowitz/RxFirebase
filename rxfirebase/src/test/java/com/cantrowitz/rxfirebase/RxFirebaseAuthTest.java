@@ -54,7 +54,6 @@ public class RxFirebaseAuthTest {
             @Override
             public Void answer(InvocationOnMock invocation) throws Throwable {
                 authStateListener = invocation.getArgument(0);
-
                 return null;
             }
         }).when(firebaseAuth).addAuthStateListener(any(FirebaseAuth.AuthStateListener.class));
@@ -62,38 +61,34 @@ public class RxFirebaseAuthTest {
 
     @Test
     public void testWhenDisposed_unregistersAuthStateListener() throws Exception {
-        target.observeAuthChange().test(true);
+        target.whenAuthStateChanged().test(true);
         verify(firebaseAuth).removeAuthStateListener(authStateListener);
     }
 
     @Test
-    public void testObserveAuthChange() throws Exception {
+    public void testWhenAuthStateChanged() throws Exception {
+        final TestObserver<FirebaseAuth> observer = target.whenAuthStateChanged().test();
+        authStateListener.onAuthStateChanged(firebaseAuth);
+        authStateListener.onAuthStateChanged(firebaseAuth);
 
-        FirebaseAuth test1 = createFirebaseAuth(null);
-        FirebaseAuth test2 = createFirebaseAuth(null);
-
-        final TestObserver<FirebaseAuth> observer = target.observeAuthChange().test();
-        authStateListener.onAuthStateChanged(test1);
-        authStateListener.onAuthStateChanged(test2);
-
-        observer.assertValues(test1, test2);
+        observer.assertValues(firebaseAuth, firebaseAuth);
     }
 
     @Test
-    public void testObserveUserChange() throws Exception {
-
+    public void testWhenUserChanged() throws Exception {
         FirebaseUser firebaseUser1 = mock(FirebaseUser.class);
         FirebaseUser firebaseUser2 = mock(FirebaseUser.class);
 
-        FirebaseAuth firebaseAuth1 = createFirebaseAuth(firebaseUser1);
-        FirebaseAuth firebaseAuth2 = createFirebaseAuth(firebaseUser2);
-        FirebaseAuth firebaseAuth3 = createFirebaseAuth(null);
 
-        final TestObserver<Maybe<FirebaseUser>> observer = target.observeUserChange().test();
-        authStateListener.onAuthStateChanged(firebaseAuth1);
-        authStateListener.onAuthStateChanged(firebaseAuth1);
-        authStateListener.onAuthStateChanged(firebaseAuth2);
-        authStateListener.onAuthStateChanged(firebaseAuth3);
+        final TestObserver<Maybe<FirebaseUser>> observer = target.whenUserChanged().test();
+        updateFirebaseUser(firebaseUser1);
+        authStateListener.onAuthStateChanged(firebaseAuth);
+        updateFirebaseUser(firebaseUser1);
+        authStateListener.onAuthStateChanged(firebaseAuth);
+        updateFirebaseUser(firebaseUser2);
+        authStateListener.onAuthStateChanged(firebaseAuth);
+        updateFirebaseUser(null);
+        authStateListener.onAuthStateChanged(firebaseAuth);
 
         observer.assertValueCount(3);
         final List<Maybe<FirebaseUser>> values = observer.values();
@@ -103,15 +98,14 @@ public class RxFirebaseAuthTest {
     }
 
     @Test
-    public void testObserveUserLoggedOut() throws Exception {
+    public void testWhenUserLoggedOut() throws Exception {
         FirebaseUser firebaseUser1 = mock(FirebaseUser.class);
 
-        FirebaseAuth firebaseAuth1 = createFirebaseAuth(firebaseUser1);
-        FirebaseAuth firebaseAuth2 = createFirebaseAuth(null);
-
-        final TestObserver<Maybe<FirebaseUser>> observer = target.observeUserLoggedOut().test();
-        authStateListener.onAuthStateChanged(firebaseAuth1);
-        authStateListener.onAuthStateChanged(firebaseAuth2);
+        final TestObserver<Maybe<FirebaseUser>> observer = target.whenUserLoggedOut().test();
+        updateFirebaseUser(firebaseUser1);
+        authStateListener.onAuthStateChanged(firebaseAuth);
+        updateFirebaseUser(null);
+        authStateListener.onAuthStateChanged(firebaseAuth);
 
         observer.assertValueCount(1);
         final List<Maybe<FirebaseUser>> values = observer.values();
@@ -119,15 +113,14 @@ public class RxFirebaseAuthTest {
     }
 
     @Test
-    public void testObserveUserLoggedIn() throws Exception {
+    public void testWhenUserLoggedIn() throws Exception {
         FirebaseUser firebaseUser1 = mock(FirebaseUser.class);
 
-        FirebaseAuth firebaseAuth1 = createFirebaseAuth(firebaseUser1);
-        FirebaseAuth firebaseAuth2 = createFirebaseAuth(null);
-
-        final TestObserver<FirebaseUser> observer = target.observeUserLoggedIn().test();
-        authStateListener.onAuthStateChanged(firebaseAuth1);
-        authStateListener.onAuthStateChanged(firebaseAuth2);
+        final TestObserver<FirebaseUser> observer = target.whenUserLoggedIn().test();
+        updateFirebaseUser(null);
+        authStateListener.onAuthStateChanged(firebaseAuth);
+        updateFirebaseUser(firebaseUser1);
+        authStateListener.onAuthStateChanged(firebaseAuth);
 
         observer.assertValues(firebaseUser1);
     }
@@ -139,7 +132,7 @@ public class RxFirebaseAuthTest {
 
         setCompleteListener();
 
-        final TestObserver<Void> testObserver = target.signInAnonymously().test();
+        final TestObserver<Void> testObserver = target.whenSignedInAnonymously().test();
 
         onCompleteListener.onComplete(taskAuthResult);
         testObserver.assertComplete();
@@ -152,7 +145,8 @@ public class RxFirebaseAuthTest {
                 onCompleteListener = invocation.getArgument(0);
                 return taskAuthResult;
             }
-        }).when(taskAuthResult).addOnCompleteListener(any(OnCompleteListener.class));
+        }).when(taskAuthResult)
+                .addOnCompleteListener(any(OnCompleteListener.class));
     }
 
     @Test
@@ -164,7 +158,7 @@ public class RxFirebaseAuthTest {
 
         setCompleteListener();
 
-        final TestObserver<Void> testObserver = target.signInAnonymously().test();
+        final TestObserver<Void> testObserver = target.whenSignedInAnonymously().test();
 
         onCompleteListener.onComplete(taskAuthResult);
 
@@ -173,14 +167,12 @@ public class RxFirebaseAuthTest {
 
     @Test
     public void testSignout() throws Exception {
-        final TestObserver<Void> testObserver = target.signOut().test();
+        final TestObserver<Void> testObserver = target.whenSignedOut().test();
         verify(firebaseAuth).signOut();
-        testObserver.onComplete();
+        testObserver.assertComplete();
     }
 
-
-    private FirebaseAuth createFirebaseAuth(@Nullable FirebaseUser firebaseUser) {
-        final FirebaseAuth firebaseAuth = mock(FirebaseAuth.class);
+    private FirebaseAuth updateFirebaseUser(@Nullable FirebaseUser firebaseUser) {
         when(firebaseAuth.getCurrentUser()).thenReturn(firebaseUser);
         return firebaseAuth;
     }
